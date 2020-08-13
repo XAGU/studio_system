@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加脚本</title>
+    <link href="component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="admin/css/pearCommon.css" rel="stylesheet"/>
+    <style>
+        .video .layui-form-label {
+            line-height: 20px;
+            float: left;
+        }
+
+        .video .layui-form-label {
+            line-height: 20px;
+        }
+
+        .upload-progress {
+            margin-top: -5px;
+        }
+
+        .upload-btn {
+            margin-left: 40px;
+            line-height: 20px;
+            display: inline-block !important;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item video">
+                    <label class="layui-form-label">上传脚本</label>
+                    <div class="layui-inline upload-btn">
+                        <button type="button" class="layui-btn layui-btn-primary" style="color: #51A351" id="upload_video">
+                            <i class="layui-icon" >&#xe67c;</i>选择文件
+                        </button>
+                        <div class="layui-progress upload-progress" lay-filter="upload-progress">
+                            <div class="layui-progress-bar" lay-percent="0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script src="/component/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'jquery', 'element', 'upload'], function () {
+        let form = layui.form;
+        let $ = layui.jquery;
+        let element = layui.element;
+        var upload = layui.upload;
+
+        //视频上传
+        var uploadInst = upload.render({
+            elem: '#upload_video' //上传按钮的id值
+            , url: '/script/uploadScript' //视频上传
+            , accept: 'file'  //指定允许上传时校验的文件类型，images（图片）、file（所有文件）、video（视频）、audio（音频）
+            , acceptMime: 'application/vnd.android.package-archive' //规定打开文件选择框时，筛选出的文件类型
+            , exts: 'apk'
+            , size: 300000   //图片最大300M
+            , progress: function (n, elem) {
+                var percent = n + '%';  //获取进度百分比
+                element.progress('upload-progress', percent); //可配合 layui 进度条元素使用
+            }
+            , done: function (res, index, upload) {
+                if (res.code === 20000) {
+                    parent.layer.msg(res.message, {icon: 1, time: 1000});
+                } else {
+                    parent.layer.msg(res.message, {icon: 2, time: 1000});
+                }
+                parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                parent.layui.table.reload("file-table");
+            }
+            , error: function (index, upload) {
+                //请求异常回调
+                layer.msg("上传失败", {icon: 2, time: 1000});
+            }
+            , choose: function (obj) {
+                element.progress('upload-progress', 0);
+            }
+        });
+
+    });
+</script>
+</body>
+</html>

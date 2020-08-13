@@ -1,0 +1,23 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: "jdbc:sqlite:studio.db"
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 300MB  #单个文件的大小
+      max-request-size: 300MB #上传文件的总大小
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+studio:
+    QQ: 3358899028            #自己QQ号
+    PASSWORD: 990301cq        #自己密码
+    ROBOT: 2422494482         #微信验证机器人的QQ
+    ROBOTWXID: wxid_o5ahymtky54712   #微信验证机器人的微信
+    SAVEPATH: E:\upload       #脚本上传文件保存位置
