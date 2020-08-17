@@ -26,7 +26,7 @@ import java.util.List;
 public class AddWxMessage implements MessageFacade {
 
     @Resource
-    IWxAccountService syncWxAccountService;
+    IWxAccountService wxAccountService;
 
     @Override
     public EnumKeyWord get() {
@@ -42,31 +42,16 @@ public class AddWxMessage implements MessageFacade {
         if (split.size() != 2) {
             retMsg.append("添加微信格式错误！");
         } else {
-
-
-            String[] accounts = split.get(1).split("\n");
-            List<WxAccount> wxAccounts = new ArrayList<>();
-            for (String account : accounts) {
-                String[] accountAndPass = account.split("----");
-                if (accountAndPass.length != 2) {
-                    continue;
+            try {
+                List<WxAccount> wxAccounts = wxAccountService.batchAddAccount(split.get(1));
+                if (wxAccounts.size() == 0) {
+                    retMsg.delete(0, retMsg.length()).append("账号数据为空，或格式错误！");
+                } else {
+                    retMsg.delete(0, retMsg.length()).append("成功添加").append(wxAccounts.size()).append("条记录！");
                 }
-                WxAccount wxAccount = new WxAccount();
-                wxAccount.setAccount(accountAndPass[0]);
-                wxAccount.setPassword(accountAndPass[1]);
-                wxAccount.setAddDate(new Date());
-                wxAccounts.add(wxAccount);
-            }
-            if (wxAccounts.size() > 0) {
-                try {
-                    if (syncWxAccountService.addWxAccount(wxAccounts)) {
-                        retMsg.delete(0, retMsg.length()).append("成功添加" + wxAccounts.size() + "条记录！");
-                    }
-                } catch (JpaSystemException e) {
-                    retMsg.delete(0, retMsg.length()).append("添加失败，请检查格式或者是否有重复！");
-                }
-            } else {
-                retMsg.delete(0, retMsg.length()).append("账号数据为空，或格式错误！");
+            } catch (Exception e) {
+                e.printStackTrace();
+                retMsg.delete(0, retMsg.length()).append("添加失败，请检查格式或者是否有重复！");
             }
         }
         PlainText plainText = new PlainText(retMsg);

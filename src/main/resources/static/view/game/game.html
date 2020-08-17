@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link href="../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../admin/css/pearCommon.css" rel="stylesheet"/>
+</head>
+<body>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">游戏名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="gameName" placeholder="请输入游戏名" class="layui-input">
+                </div>
+                <label class="layui-form-label">游戏类型</label>
+                <div class="layui-input-inline">
+                    <select name="type" lay-verify="" lay-search>
+                        <option></option>
+                        <option value="0">先授权后游戏</option>
+                        <option value="1">授权立即游戏</option>
+                    </select>
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="game-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="game-table" lay-filter="game-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="game-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
+        <i class="layui-icon layui-icon-add-1"></i>
+        新增
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        删除
+    </button>
+</script>
+
+<script type="text/html" id="game-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>
+    </button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
+    </button>
+</script>
+
+<script type="text/html" id="game-createTime">
+    {{layui.util.toDateString(d.regTime, 'yyyy-MM-dd HH:mm:ss')}}
+</script>
+
+
+<script type="text/html" id="game-script">
+    <p>
+        {{# if(d.scriptId === "" || d.scriptId === null){ }}
+        <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="upload"><i
+                class="layui-icon layui-icon-upload-circle"></i>
+        </button>
+        {{# }if(d.scriptId !== "" && d.scriptId !== null){ }}
+        <button class="pear-btn pear-btn-success pear-btn-sm" lay-event="download"><i
+                class="layui-icon layui-icon-download-circle"></i>
+        </button>
+        {{# } }}
+    </p>
+</script>
+
+<script type="text/html" id="game-type">
+    <p>
+        {{# if(d.type === "0"){ }}
+        <button class="pear-btn pear-btn-warming pear-btn-xs"> <p style="font-size: 5px">先授权后游戏</p> </button>
+    {{#  }if(d.type === "1"){ }}
+    <button class="pear-btn pear-btn-success pear-btn-xs"><p style="font-size: 5px">授权立即游戏</p></button>
+    {{# } }}
+    </p>
+</script>
+
+<script src="../../component/layui/layui.js"></script>
+
+<script>
+    layui.use(['table', 'form', 'jquery'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+
+
+        let cols = [
+            [
+                {type: 'checkbox'},
+                {title: 'ID', field: 'id', align: 'center'},
+                {title: '游戏名', field: 'gameName', align: 'center'},
+                {title: 'adid', field: 'adid', align: 'center', width: 100},
+                {title: 'sadid', field: 'sadid', align: 'center', width: 100},
+                {title: '包名', field: 'packageName', align: 'center'},
+                {title: '登录按钮特征', field: 'loginSign', align: 'center'},
+                {title: '登录后特征', field: 'loginedSign', align: 'center'},
+                {
+                    title: '编辑时间',
+                    field: 'updateTime',
+                    align: 'center',
+                    templet: '#course-createTime',
+                    sort: true,
+                    width: 180
+                },
+                {title: '游戏脚本', field: 'scriptId', align: 'center', templet: '#game-script'},
+                {title: '类型', field: 'type', align: 'center', templet: '#game-type'},
+                {title: '操作', toolbar: '#game-bar', align: 'center', width: 130}
+            ]
+        ];
+
+        table.render({
+            elem: '#game-table',  //表格id
+            url: '/game/listGame',  //异步请求参数
+            page: true,     //开启分页功能
+            cols: cols,     //设置表头。值是一个二维数组。方法渲染方式必填
+            skin: 'line',   //设定表格外观:line（行边框风格）,row（列边框风格）,nob（无边框风格）
+            //开启表格头部工具栏区域
+            toolbar: '#game-toolbar',
+            response: {
+                statusCode: 20000 //获取数据成功状态码
+            },
+            //自由配置头部工具栏右侧的图标按钮
+            defaultToolbar: [{
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh'
+            }, 'filter', 'print', 'exports'],
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": res.data.totalElements, //解析数据长度
+                    "data": res.data.content //解析数据列表
+                }
+            },
+            request: {
+                pageName: 'page' //页码的参数名称，默认：page
+                , limitName: 'size' //每页数据量的参数名，默认：limit
+            }
+        });
+
+        table.on('tool(game-table)', function (obj) {
+            if (obj.event === 'remove') {
+                window.remove(obj);
+            } else if (obj.event === 'edit') {
+                window.edit(obj);
+            }  else if (obj.event === 'download') {
+                window.download(obj);
+            } else if (obj.event === 'upload') {
+                window.upload(obj);
+            }
+        });
+
+        //监听表头按钮
+        table.on('toolbar(game-table)', function (obj) {
+            if (obj.event === 'add') {
+                window.add();
+            } else if (obj.event === 'refresh') {
+                window.refresh();
+            } else if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
+            }
+        });
+
+        form.on('submit(game-query)', function (data) {
+            table.reload('game-table', {where: data.field});
+            return false;
+        });
+
+        //新增弹层
+        window.add = function () {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['30%', '60%'],
+                content: 'addGame.html',
+                success: function (layero, index) {
+                    form.render('select');
+                    var iframe = window['layui-layer-iframe' + index];
+                    setTimeout(function () {
+                        layer.tips('点击此处返回', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    }, 500)
+                }
+            });
+        };
+
+        //修改弹层
+        window.edit = function (obj) {
+            layer.open({
+                type: 2,
+                title: '修改',
+                shade: 0.1,
+                area: ['20%', '30%'],
+                content: 'editGame.html',
+                success: function (layero, index) {
+                    var iframe = window['layui-layer-iframe' + index];
+                    iframe.child(obj.data);
+                    setTimeout(function () {
+                        layer.tips('点击此处返回', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    }, 500)
+                }
+            });
+        };
+
+        //删除
+        window.remove = function (obj) {
+            layer.confirm('确定要删除该游戏', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/game/deleteGame?ids=" + obj.data['id'],
+                    dataType: 'json',
+                    type: 'post',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.message, {icon: 1, time: 1000}, function () {
+                                obj.del();
+                            });
+                        } else {
+                            layer.msg(result.message, {icon: 2, time: 1000});
+                        }
+                    }
+                })
+            });
+        };
+
+        //批量删除
+        window.batchRemove = function (obj) {
+            let data = table.checkStatus(obj.config.id).data;
+            if (data.length === 0) {
+                layer.msg("未选中数据", {icon: 3, time: 1000});
+                return false;
+            }
+            let ids = "";
+            for (let i = 0; i < data.length; i++) {
+                ids += data[i].id + ",";
+            }
+            console.log(ids);
+            ids = ids.substr(0, ids.length - 1);
+            layer.confirm('确定要删除这些游戏', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/game/deleteGame?ids=" + ids,
+                    dataType: 'json',
+                    type: 'post',
+                    success: function (result) {
+                        layer.close(loading);
+                        if (result.success) {
+                            layer.msg(result.message, {icon: 1, time: 1000}, function () {
+                                table.reload('game-table');
+                            });
+                        } else {
+                            layer.msg(result.message, {icon: 2, time: 1000});
+                        }
+                    }
+                })
+            });
+        };
+
+        //右上刷新表格按钮
+        window.refresh = function (param) {
+            table.reload('game-table');
+        };
+
+
+        //xz
+        window.download = function (obj) {
+            window.open("/script/downloadScript?exeFileId=" + obj.data['scriptId']);
+        };
+
+        //新增弹层
+        window.upload = function (obj) {
+            layer.open({
+                type: 2,
+                title: '新增',
+                shade: 0.1,
+                area: ['20%', '25%'],
+                content: 'addScript.html',
+                success: function (layero, index) {
+                    form.render('select');
+                    var iframe = window['layui-layer-iframe' + index];
+                    iframe.child(obj.data);
+                    setTimeout(function () {
+                        layer.tips('点击此处返回', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    }, 500)
+                }
+            });
+        };
+    });
+
+
+</script>
+
+</body>
+</html>

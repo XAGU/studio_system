@@ -23,7 +23,7 @@ import java.util.List;
 public class NotUsedMessage implements MessageFacade {
 
     @Resource
-    IWxAccountService syncWxAccountService;
+    IWxAccountService wxAccountService;
 
     @Override
     public EnumKeyWord get() {
@@ -33,7 +33,7 @@ public class NotUsedMessage implements MessageFacade {
     @Override
     public void execute(LovelyCatMsg msg) {
         StringBuilder retMsg = new StringBuilder("未使用的微信：\n");
-        List<WxAccount> notUsedAccount = syncWxAccountService.getNotUsedAccount();
+        List<WxAccount> notUsedAccount = wxAccountService.getNotUsedAccount();
         for (int i = 0; i < notUsedAccount.size(); i++) {
             WxAccount wxAccount = notUsedAccount.get(i);
             retMsg.append(wxAccount.getAccount())

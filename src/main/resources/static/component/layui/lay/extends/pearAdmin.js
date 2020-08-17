@@ -25,8 +25,6 @@ layui.define(['table', 'jquery', 'element', 'form', 'pearTab', 'pearMenu', 'pear
             this.keepLoad(option);
 
 
-            this.noticeRender(option);
-
         }
 
         this.menuRender = function (option) {
@@ -418,11 +416,11 @@ layui.define(['table', 'jquery', 'element', 'form', 'pearTab', 'pearMenu', 'pear
             "<div class='select-color'><div class='select-color-title'>主题色</div><div class='select-color-content'><span class='select-color-item layui-icon layui-icon-ok' style='background-color:#FF5722;'></span><span class='select-color-item' style='background-color:#5FB878;'></span><span class='select-color-item'  style='background-color:#1E9FFF;'></span><span class='select-color-item' style='background-color:#FFB800;'></span><span class='select-color-item' style='background-color:darkgray;'></span></div></div>"
 
         html += '<div class="more-menu-list">' +
-            '<a class="more-menu-item" href="https://www.eolinker.com/#/share/index?shareCode=6jugdU" target="_blank">' +
-            '<i class="layui-icon layui-icon-read" style="font-size: 19px;"></i> 开发文档' +
+            '<a class="more-menu-item" href="/swagger-ui.html#/" target="_blank">' +
+            '<i class="layui-icon layui-icon-read" style="font-size: 19px;"></i> 接口文档' +
             '</a>' +
-            '<a class="more-menu-item" href="https://github.com/XAGU/1000wind" target="_blank">' +
-            '<i class="layui-icon layui-icon-tabs" style="font-size: 16px;"></i> 开源地址' +
+            '<a class="more-menu-item" href="https://github.com/XAGU" target="_blank">' +
+            '<i class="layui-icon layui-icon-tabs" style="font-size: 16px;"></i> GITHUB' +
             '</a>' +
             '</div>';
 

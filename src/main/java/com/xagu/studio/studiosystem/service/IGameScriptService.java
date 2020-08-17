@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Email:xagu_qc@foxmail.com
  * Describe: TODO
  */
-public interface IExeFileService {
+public interface IGameScriptService {
     /**
      * 上传脚本exe
      * @param file
@@ -21,9 +21,8 @@ public interface IExeFileService {
      */
     ResponseResult downloadScript(String exeFileId);
 
-    ResponseResult listExe(Integer page, Integer size);
+    ResponseResult listGameScript(Integer page, Integer size);
 
-    ResponseResult deleteExe(String exeFileId);
+    ResponseResult deleteGameScript(String gameScriptId);
 
-    ResponseResult randomScript(String account);
 }

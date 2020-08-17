@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title></title>
-    <link href="component/layui/css/layui.css" rel="stylesheet"/>
-    <link href="admin/css/pearCommon.css" rel="stylesheet"/>
+    <link href="../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../admin/css/pearCommon.css" rel="stylesheet"/>
 </head>
 <body class="pear-container">
 <div class="layui-card">
@@ -34,7 +34,7 @@
 </script>
 
 
-<script src="/component/layui/layui.js"></script>
+<script src="../..//component/layui/layui.js"></script>
 
 <script>
     layui.use(['table', 'form', 'jquery'], function () {
@@ -121,7 +121,7 @@
                 type: 2,
                 title: '新增',
                 shade: 0.1,
-                area: ['20%', '30%'],
+                area: ['20%', '25%'],
                 content: 'addScript.html',
                 success: function (layero, index) {
                     form.render('select');

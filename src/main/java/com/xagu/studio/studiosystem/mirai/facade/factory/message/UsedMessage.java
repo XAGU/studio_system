@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class UsedMessage implements MessageFacade {
     @Resource
-    IWxAccountService syncWxAccountService;
+    IWxAccountService wxAccountService;
 
     @Override
     public EnumKeyWord get() {
@@ -31,7 +31,7 @@ public class UsedMessage implements MessageFacade {
     @Override
     public void execute(Contact sender, Message message) {
         StringBuilder retMsg = new StringBuilder("已使用的微信：\n");
-        List<WxAccount> usedAccount = syncWxAccountService.getUsedAccount();
+        List<WxAccount> usedAccount = wxAccountService.getUsedAccount();
         for (int i = 0; i < usedAccount.size(); i++) {
             WxAccount wxAccount = usedAccount.get(i);
             retMsg.append(wxAccount.getAccount())

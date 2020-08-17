@@ -1,56 +1,33 @@
 package com.xagu.studio.studiosystem.bean;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.xagu.studio.studiosystem.utils.Constants;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author xagu
- * Created on 2020/7/28
- * Email:xagu_qc@foxmail.com
- * Describe: TODO
  */
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "account")})
 @Entity
+@Table(name = " tb_wx_account")
 public class WxAccount {
+
     @Id
-    @GenericGenerator(name = "system-uuid", strategy = "uuid")
-    @GeneratedValue(generator = "system-uuid")
-    @Column(name = "id", columnDefinition = "varchar(32)")
     private String id;
-    /**
-     * 微信号
-     */
-    @Column(name = "account", columnDefinition = "varchar(32) unique")
+    @Column(name = "account")
     private String account;
-    /**
-     * 密码
-     */
-    @Column(name = "password", columnDefinition = "varchar(32)")
+    @Column(name = "password")
     private String password;
-    /**
-     * 添加时间
-     */
-    @Column(name = "add_date")
-    private Date addDate;
-    /**
-     * 是否使用
-     */
-    @Column(name = "used")
-    private boolean used = false;
+    @Column(name = "update_time")
+    private Date updateTime;
+    @Column(name = "status")
+    private String status = Constants.WxAccountStatus.NOT_USED;
+    @Column(name = "imei")
+    private String imei;
 
-    @ManyToMany(mappedBy = "accountList")
-    private List<ExeFile> exeFiles;
-
-    public List<ExeFile> getExeFiles() {
-        return exeFiles;
-    }
-
-    public void setExeFiles(List<ExeFile> exeFiles) {
-        this.exeFiles = exeFiles;
-    }
 
     public String getId() {
         return id;
@@ -76,19 +53,27 @@ public class WxAccount {
         this.password = password;
     }
 
-    public Date getAddDate() {
-        return addDate;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setAddDate(Date addDate) {
-        this.addDate = addDate;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
-    public boolean isUsed() {
-        return used;
+    public String getStatus() {
+        return status;
     }
 
-    public void setUsed(boolean used) {
-        this.used = used;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getImei() {
+        return imei;
+    }
+
+    public void setImei(String imei) {
+        this.imei = imei;
     }
 }

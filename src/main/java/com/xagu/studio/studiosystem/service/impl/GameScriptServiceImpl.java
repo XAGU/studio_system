@@ -1,10 +1,11 @@
 package com.xagu.studio.studiosystem.service.impl;
 
-import com.xagu.studio.studiosystem.bean.ExeFile;
-import com.xagu.studio.studiosystem.dao.ExeFileRepository;
+import com.xagu.studio.studiosystem.bean.GameScript;
+import com.xagu.studio.studiosystem.dao.GameScriptRepository;
 import com.xagu.studio.studiosystem.response.ResponseResult;
-import com.xagu.studio.studiosystem.service.IExeFileService;
+import com.xagu.studio.studiosystem.service.IGameScriptService;
 import com.xagu.studio.studiosystem.utils.Constants;
+import com.xagu.studio.studiosystem.utils.SnowFlake;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 
@@ -33,14 +33,17 @@ import java.util.Optional;
  * Describe: TODO
  */
 @Transactional(rollbackFor = RuntimeException.class)
-@Service("exeFileService")
-public class ExeFileServiceImpl implements IExeFileService {
+@Service("gameScriptService")
+public class GameScriptServiceImpl extends BaseService implements IGameScriptService {
     @Autowired
-    ExeFileRepository exeFileRepository;
+    GameScriptRepository gameScriptRepository;
     @Value("${studio.SAVEPATH}")
     private String filePath;
     @Autowired
     private HttpServletResponse response;
+
+    @Autowired
+    SnowFlake snowFlake;
 
 
     @Override
@@ -58,7 +61,7 @@ public class ExeFileServiceImpl implements IExeFileService {
         String originalFilename = file.getOriginalFilename();
         //创建图片的保存目录
         String targetPath = filePath + File.separator + originalFilename;
-        if (exeFileRepository.existsByFileNameAndAndPath(originalFilename, targetPath)) {
+        if (gameScriptRepository.existsByFileNameAndAndPath(originalFilename, targetPath)) {
             return ResponseResult.FAILED("失败，文件已上传或文件名重复");
         }
         File targetFile = new File(targetPath);
@@ -73,18 +76,19 @@ public class ExeFileServiceImpl implements IExeFileService {
             return ResponseResult.FAILED("文件上传失败！");
         }
         //记录文件
-        ExeFile exeFile = new ExeFile();
-        exeFile.setPath(targetPath);
-        exeFile.setFileName(originalFilename);
-        exeFile.setUpdateTime(new Date());
-        exeFileRepository.save(exeFile);
+        GameScript gameScript = new GameScript();
+        gameScript.setId(snowFlake.nextId() + "");
+        gameScript.setPath(targetPath);
+        gameScript.setFileName(originalFilename);
+        gameScript.setUpdateTime(new Date());
+        gameScriptRepository.save(gameScript);
         //返回结果 访问路径 名称 alt
-        return ResponseResult.SUCCESS("上传脚本成功！").setData(exeFile);
+        return ResponseResult.SUCCESS("上传脚本成功！").setData(gameScript);
     }
 
     @Override
     public ResponseResult downloadScript(String exeFileId) {
-        Optional<ExeFile> exeFile = exeFileRepository.findById(exeFileId);
+        Optional<GameScript> exeFile = gameScriptRepository.findById(exeFileId);
         if (!exeFile.isPresent()) {
             return ResponseResult.FAILED("请求脚本文件不存在");
         }
@@ -130,21 +134,21 @@ public class ExeFileServiceImpl implements IExeFileService {
     }
 
     @Override
-    public ResponseResult listExe(Integer page, Integer size) {
+    public ResponseResult listGameScript(Integer page, Integer size) {
         page = this.checkPage(page);
         size = this.checkSize(size);
         Sort sort = Sort.by(Sort.Direction.DESC, "updateTime");
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-        Page<ExeFile> exeFiles = exeFileRepository.findAll(pageable);
+        Page<GameScript> exeFiles = gameScriptRepository.findAll(pageable);
         return ResponseResult.SUCCESS("获取列表成功！").setData(exeFiles);
     }
 
     @Override
-    public ResponseResult deleteExe(String exeFileId) {
+    public ResponseResult deleteGameScript(String gameScriptId) {
         boolean isSuccess = false;
-        Optional<ExeFile> exeFile = exeFileRepository.findById(exeFileId);
+        Optional<GameScript> exeFile = gameScriptRepository.findById(gameScriptId);
         if (exeFile.isPresent()) {
-            if (exeFileRepository.deleteExeFileById(exeFileId) > 0) {
+            if (gameScriptRepository.deleteGameScriptById(gameScriptId) > 0) {
                 isSuccess = true;
                 File file = new File(exeFile.get().getPath());
                 if (file.exists()) {
@@ -158,31 +162,4 @@ public class ExeFileServiceImpl implements IExeFileService {
                 "删除脚本失败！");
     }
 
-    @Override
-    public ResponseResult randomScript(String account) {
-        if (StringUtils.isEmpty(account)) {
-            return ResponseResult.FAILED("当前微信号参数不能为空");
-        }
-        ExeFile exeFile = exeFileRepository.randomScriptExe(account);
-        if (exeFile != null) {
-            exeFileRepository.setExeRuned(exeFile.getId(), account);
-        }
-        return ResponseResult.decide(exeFile != null, "获取随机脚本成功", "所有脚本均已运行，无更多脚本")
-                .setData(exeFile);
-    }
-
-    protected int checkPage(int page) {
-        if (page < Constants.Page.DEFAULT_PAGE) {
-            page = Constants.Page.DEFAULT_PAGE;
-        }
-        return page;
-    }
-
-    protected int checkSize(int size) {
-        //最少查5个
-        if (size < Constants.Page.MIN_SIZE) {
-            size = Constants.Page.MIN_SIZE;
-        }
-        return size;
-    }
 }

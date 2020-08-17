@@ -16,12 +16,14 @@ import java.util.List;
 public interface WxAccountRepository extends JpaRepository<WxAccount, String>, JpaSpecificationExecutor<WxAccount> {
     WxAccount findOneById(String id);
 
-    WxAccount findFirstByUsedFalseOrderByAddDateAsc();
+    WxAccount findOneByImei(String imei);
 
-    List<WxAccount> findByUsedFalse();
+    Integer deleteWxAccountsByIdIn(String[] ids);
 
+    WxAccount findFirstByStatusEqualsOrderByUpdateTimeAsc(String status);
 
-    List<WxAccount> findByUsedTrue();
+    List<WxAccount> findByStatusEquals(String status);
 
+    List<WxAccount> findByStatusNot(String status);
 
 }

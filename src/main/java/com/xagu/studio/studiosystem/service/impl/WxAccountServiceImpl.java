@@ -2,25 +2,23 @@ package com.xagu.studio.studiosystem.service.impl;
 
 import com.xagu.studio.studiosystem.bean.WxAccount;
 import com.xagu.studio.studiosystem.dao.WxAccountRepository;
-import com.xagu.studio.studiosystem.mirai.helper.SendHelper;
 import com.xagu.studio.studiosystem.service.IWxAccountService;
-import jdk.nashorn.internal.ir.IfNode;
-import net.mamoe.mirai.message.data.PlainText;
+import com.xagu.studio.studiosystem.utils.Constants;
+import com.xagu.studio.studiosystem.utils.SnowFlake;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.*;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author xagu
@@ -30,36 +28,77 @@ import java.util.Optional;
  */
 @Service("wxAccountService")
 @Transactional(rollbackFor = RuntimeException.class)
-public class WxAccountServiceImpl implements IWxAccountService {
+public class WxAccountServiceImpl extends BaseService implements IWxAccountService {
+
+    @Autowired
+    private SnowFlake snowFlake;
 
     @Autowired
     WxAccountRepository wxAccountRepository;
-    private ByteArrayOutputStream byteArrayOutputStream;
 
 
     @Override
-    public boolean addWxAccount(List<WxAccount> accounts) {
-        wxAccountRepository.saveAll(accounts);
-        return true;
+    public List<WxAccount> batchAddAccount(String wxAccountStr) {
+        String[] accounts = wxAccountStr.trim().split("\\s+");
+        List<WxAccount> wxAccounts = new ArrayList<>();
+        for (String account : accounts) {
+            String[] accountAndPass = account.split("----");
+            if (accountAndPass.length != 2) {
+                continue;
+            }
+            WxAccount wxAccount = new WxAccount();
+            wxAccount.setAccount(accountAndPass[0]);
+            wxAccount.setPassword(accountAndPass[1]);
+            wxAccount.setId(snowFlake.nextId() + "");
+            wxAccount.setUpdateTime(new Date());
+            wxAccounts.add(wxAccount);
+        }
+        if (wxAccounts.size() > 0) {
+            return wxAccountRepository.saveAll(wxAccounts);
+        } else {
+            return wxAccounts;
+        }
     }
 
     @Override
-    public WxAccount getAccount() {
-        WxAccount wxAccount = wxAccountRepository.findFirstByUsedFalseOrderByAddDateAsc();
-        if (wxAccount != null) {
-            wxAccount.setUsed(true);
+    public boolean addWxAccount(WxAccount account) {
+        if (StringUtils.isEmpty(account.getAccount())) {
+            return false;
         }
-        return wxAccount;
+        if (StringUtils.isEmpty(account.getPassword())) {
+            return false;
+        }
+        account.setId(snowFlake.nextId() + "");
+        account.setUpdateTime(new Date());
+        wxAccountRepository.save(account);
+        return true;
+    }
+
+
+    @Override
+    public WxAccount getAccount(String imei) {
+        WxAccount oneByImei = wxAccountRepository.findOneByImei(imei);
+        if (oneByImei != null) {
+            return oneByImei;
+        } else {
+            WxAccount wxAccount = wxAccountRepository.findFirstByStatusEqualsOrderByUpdateTimeAsc(Constants.WxAccountStatus.NOT_USED);
+            if (wxAccount != null) {
+                wxAccount.setImei(imei);
+                wxAccount.setStatus(Constants.WxAccountStatus.USED);
+                wxAccountRepository.save(wxAccount);
+            }
+            return wxAccount;
+        }
     }
 
     @Override
     public List<WxAccount> getNotUsedAccount() {
-        return wxAccountRepository.findByUsedFalse();
+        return wxAccountRepository.findByStatusEquals(Constants.WxAccountStatus.NOT_USED);
     }
 
     @Override
     public List<WxAccount> getUsedAccount() {
-        return wxAccountRepository.findByUsedTrue();
+        return wxAccountRepository.findByStatusNot(Constants.WxAccountStatus.NOT_USED);
     }
 
     @Override
@@ -69,72 +108,71 @@ public class WxAccountServiceImpl implements IWxAccountService {
     }
 
     @Override
-    public String accountVerify(MultipartFile file, String account) {
-        if (file == null || file.isEmpty() || StringUtils.isEmpty(account)) {
-            return "参数错误";
-        }
-        try {
-            com.xagu.studio.studiosystem.mirai.helper.SendHelper.sendMessageToRobot(new PlainText("辅助" + account));
-            com.xagu.studio.studiosystem.mirai.helper.SendHelper.sendImageToRobot(file.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "failed";
-        }
-        return "success";
+    public boolean deleteAccount(String[] ids) {
+        return wxAccountRepository.deleteWxAccountsByIdIn(ids) > 0;
     }
 
     @Override
-    public String accountVerifyByWx(MultipartFile file, String account) {
-        if (file.isEmpty() || StringUtils.isEmpty(account)) {
-            return "参数错误";
+    public boolean updateAccount(WxAccount wxAccount) {
+        String id = wxAccount.getId();
+        if (StringUtils.isEmpty(id)) {
+            return false;
         }
-        try {
-            if (byteArrayOutputStream != null) {
-                byteArrayOutputStream.close();
-            }
-            InputStream inputStream = file.getInputStream();
-            byteArrayOutputStream = SendHelper.cloneInputStream(inputStream);
-            com.xagu.studio.studiosystem.lovelycat.helper.SendHelper.sendMessageToRobot("辅助" + account);
-            com.xagu.studio.studiosystem.lovelycat.helper.SendHelper.sendImageToRobot("http://localhost:8080/wx/getQrCode");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "failed";
+        WxAccount dbWxAccount = wxAccountRepository.findOneById(id);
+        if (dbWxAccount == null) {
+            return false;
         }
-        return "success";
+        String account = wxAccount.getAccount();
+        if (!StringUtils.isEmpty(account)) {
+            dbWxAccount.setAccount(account);
+        }
+        String password = wxAccount.getPassword();
+        if (!StringUtils.isEmpty(password)) {
+            dbWxAccount.setPassword(password);
+        }
+        String imei = wxAccount.getImei();
+        if (!StringUtils.isEmpty(imei)) {
+            dbWxAccount.setImei(imei);
+        }
+        String status = wxAccount.getStatus();
+        if (!StringUtils.isEmpty(status)) {
+            dbWxAccount.setStatus(status);
+        }
+        dbWxAccount.setUpdateTime(new Date());
+        wxAccountRepository.save(dbWxAccount);
+        return true;
     }
 
     @Override
-    public void getQrCode(HttpServletResponse response) {
-        ServletOutputStream outputStream = null;
-        response.setContentType("image/png");
-        ByteArrayInputStream byteArrayInputStream = null;
-        try {
-            outputStream = response.getOutputStream();
-            //读取
-            byte[] buffer = new byte[1024];
-            byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-            int length;
-            while ((length = byteArrayInputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, length);
-            }
-            outputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (byteArrayInputStream != null) {
-                try {
-                    byteArrayInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+    public WxAccount getAccountById(String id) {
+        return wxAccountRepository.findOneById(id);
+    }
+
+    @Override
+    public Page<WxAccount> listAccount(Integer page, Integer size, String account, String imei, String status) {
+        page = this.checkPage(page);
+        size = this.checkSize(size);
+        Sort sort = Sort.by(Sort.Direction.DESC, "updateTime");
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        //开始查询
+        Page<WxAccount> wxAccounts = wxAccountRepository.findAll(new Specification<WxAccount>() {
+            @Override
+            public Predicate toPredicate(Root<WxAccount> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<>();
+                if (!StringUtils.isEmpty(account)) {
+                    predicates.add(criteriaBuilder.like(root.get("account").as(String.class), account + "%"));
                 }
-            }
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (!StringUtils.isEmpty(imei)) {
+                    predicates.add(criteriaBuilder.like(root.get("imei"), imei + "%"));
                 }
+                if (!StringUtils.isEmpty(status)) {
+                    predicates.add(criteriaBuilder.equal(root.get("status"), status));
+                }
+                Predicate[] predicate = new Predicate[predicates.size()];
+                predicates.toArray(predicate);
+                return criteriaBuilder.and(predicate);
             }
-        }
+        }, pageable);
+        return wxAccounts;
     }
 }

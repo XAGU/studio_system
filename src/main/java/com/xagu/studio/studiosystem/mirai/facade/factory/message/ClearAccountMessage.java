@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 public class ClearAccountMessage implements MessageFacade {
 
     @Resource
-    IWxAccountService syncWxAccountService;
+    IWxAccountService wxAccountService;
 
     @Override
     public EnumKeyWord get() {
@@ -30,7 +30,7 @@ public class ClearAccountMessage implements MessageFacade {
     @Override
     public void execute(Contact sender, Message message) {
         StringBuilder retMsg = new StringBuilder("");
-        if (syncWxAccountService.clearAccount()) {
+        if (wxAccountService.clearAccount()) {
             retMsg.append("清空成功！");
         } else {
             retMsg.append("清空失败！");

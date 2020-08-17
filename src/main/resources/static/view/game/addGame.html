@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加脚本</title>
+    <link href="../../component/layui/css/layui.css" rel="stylesheet"/>
+    <link href="../../admin/css/pearCommon.css" rel="stylesheet"/>
+
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="main-container">
+                <div class="layui-form-item">
+                    <!--                    <div class="layui-form-item">-->
+                    <!--                        <label class="layui-form-label">游戏名</label>-->
+                    <!--                        <div class="layui-input-block">-->
+                    <!--                            <input type="text" name="gameName" lay-verify="required" autocomplete="off"-->
+                    <!--                                   placeholder="请输入游戏名"-->
+                    <!--                                   class="layui-input">-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">游戏名</label>
+                        <div class="layui-input-block">
+                            <div id="selectGame"></div>
+                            <!--<input type="text"  name="accountSchool" lay-verify="title" autocomplete="off" placeholder="请输入学校" class="layui-input">-->
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">包名</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="packageName" lay-verify="required" autocomplete="off"
+                                   placeholder="" class="layui-input" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">adid</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="adid" lay-verify="required" autocomplete="off"
+                                   placeholder="" class="layui-input" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">sadid</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="sadid" lay-verify="required" autocomplete="off"
+                                   placeholder="" class="layui-input" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">游戏类型</label>
+                        <div class="layui-input-block">
+                            <input type="radio" lay-filter="type" name="type" value="0" title="先授权后游戏" checked>
+                            <input type="radio" lay-filter="type" name="type" value="1" title="授权立即游戏">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" id="loginSignItem">
+                        <label class="layui-form-label">登录特征</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="loginSign" name="loginSign" autocomplete="off" placeholder="登录按钮特征"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" id="loginedSignItem">
+                        <label class="layui-form-label">成功特征</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="loginedSign" name="loginedSign" autocomplete="off"
+                                   placeholder="登录成功特征" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit=""
+                    lay-filter="script-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script src="../../component/layui/layui.js"></script>
+<script src="../../component/xmselect/xm-select.js"></script>
+<script>
+    layui.use(['form', 'jquery'], function () {
+        let $ = layui.jquery;
+        let form = layui.form;
+
+
+        form.on("radio(type)", function (data) {
+            if (this.value === '1') {
+                $("#loginSignItem").hide();
+                $("#loginedSignItem").hide();
+                $("#loginSign").val("");
+                $("#loginedSign").val("");
+            } else if (this.value === '0') {
+                $("#loginSignItem").show();
+                $("#loginedSignItem").show();
+            }
+        });
+
+        var selectGame = xmSelect.render({
+            el: '#selectGame',
+            autoRow: true,
+            toolbar: {show: false},
+            filterable: true,
+            remoteSearch: true,
+            paging: true,
+            pageSize: 5,
+            radio: true,
+            name: 'gameName',
+            prop: {
+                name: 'adname',
+                value: 'adname'
+            },
+            remoteMethod: function (val, cb, show) {
+                //这里如果val为空, 则不触发搜索
+                if (!val) {
+                    return cb([]);
+                }
+
+                $.ajax({
+                    url: 'http://ifsapp.pceggs.com:80/pages/IntegralWall/IW_Awall_SeachAdInfo.ashx?ptype=2&newversion=1&keycode=111111&deviceid=111111&userid=111111&pid=11396&admsg=' + val,
+                    dataType: 'json',
+                    type: 'post',
+                    success: function (result) {
+                        cb(result.data.seachlist);
+                    },
+                    error: function (result) {
+                        layer.msg("系统错误", {icon: 2, time: 2000});
+                    }
+                });
+            },
+            on: function (data) {
+                //arr:  当前多选已选中的数据
+                var arr = data.arr;
+                if (arr.length <= 0) {
+                    return
+                }
+                var game = arr[0];
+
+                $.ajax({
+                    url: 'http://ifsapp.pceggs.com/Pages/IntegralWall/IW_Awall_addetail.ashx?userid=111111&keycode=111111&ptype=2&deviceid=111111&pid=11396&newversion=1&simid=&xwdeviceid=&adid=' + game.adid,
+                    dataType: 'json',
+                    type: 'post',
+                    success: function (result) {
+                        if (result.status === 0){
+                            $("input[name='adid']").val(result.data.ADInfo[0].adid);
+                            $("input[name='sadid']").val(result.data.ADInfo[0].sadid);
+                            $("input[name='packageName']").val(result.data.ADInfo[0].pagename);
+                        } else {
+                            layer.msg("系统错误", {icon: 2, time: 2000});
+                        }
+                    },
+                    error: function (result) {
+                        layer.msg("系统错误", {icon: 2, time: 2000});
+                    }
+                });
+            },
+        });
+
+        //提交操作
+        form.on('submit(script-save)', function (data) {
+            $.ajax({
+                url: '/game/addGame',
+                data: data.field,
+                type: 'post',
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.message, {icon: 1, time: 1000}, function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));//关闭当前页
+                            parent.layui.table.reload("game-table");
+                        });
+                    } else {
+                        layer.msg(result.message, {icon: 2, time: 1000});
+                    }
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

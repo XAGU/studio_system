@@ -1,8 +1,9 @@
 package com.xagu.studio.studiosystem.controller;
 
 import com.xagu.studio.studiosystem.response.ResponseResult;
-import com.xagu.studio.studiosystem.service.IExeFileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.xagu.studio.studiosystem.service.IGameScriptService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,33 +18,29 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("script")
-public class ExeFileController {
+public class GameScriptController {
 
     @Resource
-    IExeFileService exeFileService;
+    IGameScriptService exeFileService;
 
-    @RequestMapping("uploadScript")
+    @PostMapping("uploadScript")
     public ResponseResult uploadScript(MultipartFile file) {
         return exeFileService.uploadScript(file);
     }
 
-    @RequestMapping("downloadScript")
+    @GetMapping("downloadScript")
     public ResponseResult downloadScript(String exeFileId) {
         return exeFileService.downloadScript(exeFileId);
     }
 
-    @RequestMapping("randomScript")
-    public ResponseResult randomScript(String account) {
-        return exeFileService.randomScript(account);
-    }
 
-    @RequestMapping("listScript")
+    @GetMapping("listScript")
     public ResponseResult listScript(Integer page, Integer size) {
-        return exeFileService.listExe(page, size);
+        return exeFileService.listGameScript(page, size);
     }
 
-    @RequestMapping("deleteScript")
+    @PostMapping("deleteScript")
     public ResponseResult deleteScript(String exeFileId) {
-        return exeFileService.deleteExe(exeFileId);
+        return exeFileService.deleteGameScript(exeFileId);
     }
 }

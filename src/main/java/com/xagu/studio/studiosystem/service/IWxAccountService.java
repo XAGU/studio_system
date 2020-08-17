@@ -1,9 +1,8 @@
 package com.xagu.studio.studiosystem.service;
 
 import com.xagu.studio.studiosystem.bean.WxAccount;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -14,16 +13,27 @@ import java.util.List;
  */
 public interface IWxAccountService {
     /**
-     * 添加微信号
+     * 批量添加微信号
+     *
+     * @param wxAccounts
      * @return
      */
-    boolean addWxAccount(List<WxAccount> wxAccounts);
+    List<WxAccount> batchAddAccount(String wxAccounts);
+
+    /**
+     * 添加微信
+     *
+     * @param account
+     * @return
+     */
+    public boolean addWxAccount(WxAccount account);
 
     /**
      * 获取微信号
+     *
      * @return
      */
-    WxAccount getAccount();
+    WxAccount getAccount(String imei);
 
     List<WxAccount> getNotUsedAccount();
 
@@ -31,9 +41,18 @@ public interface IWxAccountService {
 
     boolean clearAccount();
 
-    String accountVerify(MultipartFile file,String account);
 
-    String accountVerifyByWx(MultipartFile file,String account);
+    /**
+     * 删除微信账户
+     *
+     * @param ids
+     * @return
+     */
+    boolean deleteAccount(String[] ids);
 
-    void getQrCode(HttpServletResponse response);
+    boolean updateAccount(WxAccount wxAccount);
+
+    WxAccount getAccountById(String id);
+
+    Page<WxAccount> listAccount(Integer page, Integer size, String account, String imei, String status);
 }
