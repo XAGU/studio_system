@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 /**
  * @author xagu
@@ -24,6 +25,7 @@ import java.io.InputStream;
 @Service("verifyService")
 public class VerifyServiceImpl implements IVerifyService {
     private ByteArrayOutputStream byteArrayOutputStream;
+    private Long lastVerify = 0L;
 
     @Override
     public synchronized String accountVerify(MultipartFile file, String account) {
@@ -31,7 +33,7 @@ public class VerifyServiceImpl implements IVerifyService {
             return "参数错误";
         }
         try {
-            com.xagu.studio.studiosystem.mirai.helper.SendHelper.sendMessageToRobot(new PlainText("辅助" + account));
+            com.xagu.studio.studiosystem.mirai.helper.SendHelper.sendMessageToRobot(new PlainText(account));
             com.xagu.studio.studiosystem.mirai.helper.SendHelper.sendImageToRobot(file.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,14 +47,19 @@ public class VerifyServiceImpl implements IVerifyService {
         if (file.isEmpty() || StringUtils.isEmpty(account)) {
             return "参数错误";
         }
+        //30秒限制时间，发送频率不能太快
+        if (System.currentTimeMillis() < lastVerify + 15000) {
+            return "发送队列繁忙";
+        }
         try {
             if (byteArrayOutputStream != null) {
                 byteArrayOutputStream.close();
             }
             InputStream inputStream = file.getInputStream();
             byteArrayOutputStream = SendHelper.cloneInputStream(inputStream);
-            com.xagu.studio.studiosystem.lovelycat.helper.SendHelper.sendMessageToRobot("辅助" + account);
+            com.xagu.studio.studiosystem.lovelycat.helper.SendHelper.sendMessageToRobot(account);
             com.xagu.studio.studiosystem.lovelycat.helper.SendHelper.sendImageToRobot("http://localhost:8080/verify/getQrCode");
+            lastVerify = System.currentTimeMillis   ();
         } catch (IOException e) {
             e.printStackTrace();
             return "failed";
@@ -61,7 +68,7 @@ public class VerifyServiceImpl implements IVerifyService {
     }
 
     @Override
-    public synchronized void getQrCode(HttpServletResponse response) {
+    public void getQrCode(HttpServletResponse response) {
         ServletOutputStream outputStream = null;
         response.setContentType("image/png");
         ByteArrayInputStream byteArrayInputStream = null;
@@ -94,4 +101,5 @@ public class VerifyServiceImpl implements IVerifyService {
             }
         }
     }
+
 }

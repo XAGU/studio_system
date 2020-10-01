@@ -57,5 +57,30 @@
         "href": "view/zq/zq.html"
       }
     ]
+  },
+  {
+    "id": "system",
+    "title": "系统管理",
+    "icon": "layui-icon layui-icon-util",
+    "type": 0,
+    "href": "",
+    "children": [
+      {
+        "id": 4031,
+        "title": "配置管理",
+        "icon": "layui-icon layui-icon-tips",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/admin/config.html"
+      },
+      {
+        "id": 4032,
+        "title": "后台密码",
+        "icon": "layui-icon layui-icon-password",
+        "type": 1,
+        "openType": "_iframe",
+        "href": "view/admin/pass.html"
+      }
+    ]
   }
 ]

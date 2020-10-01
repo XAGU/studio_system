@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:mysql://192.168.189.140:3306/studio?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+    url: jdbc:mysql://192.168.189.146:3306/studio?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,8 +16,4 @@ spring:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
 studio:
-    QQ: 3358899028            #自己QQ号
-    PASSWORD: 990301cq        #自己密码
-    ROBOT: 2422494482         #微信验证机器人的QQ
-    ROBOTWXID: wxid_o5ahymtky54712   #微信验证机器人的微信
-    SAVEPATH: E:\upload       #脚本上传文件保存位置
+  SAVEPATH: E:\upload       #脚本上传文件保存位置

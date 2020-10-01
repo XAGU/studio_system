@@ -37,8 +37,8 @@ public class ZqAccountController {
      * @return
      */
     @PostMapping("addAccount")
-    public ResponseResult addAccount(ZqAccount zqAccount) {
-        return ResponseResult.decide(zqAccountService.addZqAccount(zqAccount),
+    public ResponseResult addAccount(ZqAccount zqAccount, String imei) {
+        return ResponseResult.decide(zqAccountService.addZqAccount(zqAccount, imei),
                 "添加中青账号成功",
                 "添加中青账号失败");
     }
@@ -62,9 +62,18 @@ public class ZqAccountController {
                 .setData(accountById);
     }
 
+    @GetMapping("getAccountByImei")
+    public ResponseResult getAccountByImei(String imei) {
+        ZqAccount accountById = zqAccountService.getAccountByImei(imei);
+        return ResponseResult.decide(accountById != null,
+                "获取账号成功",
+                "获取账号失败")
+                .setData(accountById);
+    }
+
     @GetMapping("listAccount")
-    public ResponseResult listAccount(Integer page, Integer size, String phone) {
-        Page<ZqAccount> zqAccounts = zqAccountService.listAccount(page, size, phone);
+    public ResponseResult listAccount(Integer page, Integer size, String phone,String wxId) {
+        Page<ZqAccount> zqAccounts = zqAccountService.listAccount(page, size, phone,wxId);
         return ResponseResult.SUCCESS("获取账号成功").setData(zqAccounts);
     }
 

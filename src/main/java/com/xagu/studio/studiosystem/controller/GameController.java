@@ -74,6 +74,13 @@ public class GameController {
                 "更新游戏信息失败");
     }
 
+    @PostMapping("updateGameInfo")
+    public ResponseResult updateGameInfo(String id, String adid, String sadid, String packageName) {
+        return ResponseResult.decide(gameService.updateGameInfo(id, adid, sadid, packageName),
+                "更新游戏信息成功",
+                "更新游戏信息失败");
+    }
+
     @GetMapping("getGameById")
     public ResponseResult getAccountById(String id) {
         Game gameByid = gameService.getGameByid(id);
@@ -87,6 +94,18 @@ public class GameController {
     public ResponseResult listGame(Integer page, Integer size, String gameName, String type) {
         Page<Game> games = gameService.listGame(page, size, gameName, type);
         return ResponseResult.SUCCESS("获取游戏成功").setData(games);
+    }
+
+    @GetMapping("listOverGame")
+    public ResponseResult listOverGame(String wxId) {
+        List<Game> games = gameService.listOverGame(wxId);
+        return ResponseResult.SUCCESS("获取已完成游戏成功").setData(games);
+    }
+
+    @GetMapping("listNotOverGame")
+    public ResponseResult listNotOverGame(String wxId) {
+        List<Game> games = gameService.listNotOverGame(wxId);
+        return ResponseResult.SUCCESS("获取已完成游戏成功").setData(games);
     }
 
     @GetMapping("listAfterRunGame")
@@ -114,17 +133,25 @@ public class GameController {
                 "同步脚本运行状态失败");
     }
 
+    @PostMapping("setGameNotOver")
+    public ResponseResult setGameNotOver(String wxId, String gameId) {
+        return ResponseResult.decide(gameService.setGameNotOver(wxId, gameId),
+                "已同步脚本运行状态",
+                "同步脚本运行状态失败");
+    }
+
     @PostMapping("setGameScript")
     public ResponseResult setGameScript(String gameId, String scriptId) {
-        if (StringUtils.isEmpty(gameId)){
+        if (StringUtils.isEmpty(gameId)) {
             return ResponseResult.FAILED("游戏id不能为空");
         }
-        if (StringUtils.isEmpty(scriptId)){
+        if (StringUtils.isEmpty(scriptId)) {
             return ResponseResult.FAILED("脚本id不能为空");
         }
         return ResponseResult.decide(gameService.setGameScript(gameId, scriptId),
                 "添加游戏脚本成功",
                 "添加游戏脚本失败");
     }
+
 
 }

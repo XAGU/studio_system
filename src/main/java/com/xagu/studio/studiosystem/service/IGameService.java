@@ -3,6 +3,8 @@ package com.xagu.studio.studiosystem.service;
 import com.xagu.studio.studiosystem.bean.Game;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * @author xagu
  * Created on 2020/8/15
@@ -15,7 +17,7 @@ public interface IGameService {
 
     boolean deleteGame(String[] split);
 
-    boolean updateGame(Game game) ;
+    boolean updateGame(Game game);
 
     Game getGameByid(String id);
 
@@ -26,4 +28,13 @@ public interface IGameService {
     boolean setGameOver(String wxId, String gameId);
 
     boolean setGameScript(String gameId, String scriptId);
+
+    List<Game> listOverGame(String wxId);
+
+    List<Game> listNotOverGame(String wxId);
+
+    boolean setGameNotOver(String wxId, String gameId);
+
+    boolean updateGameInfo(String id, String adid, String sadid, String packageName);
+
 }

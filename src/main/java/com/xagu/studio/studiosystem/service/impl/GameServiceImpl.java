@@ -144,7 +144,10 @@ public class GameServiceImpl extends BaseService implements IGameService {
 
     @Override
     public boolean setGameOver(String wxId, String gameId) {
-        return gameRepository.setGameOver(wxId, gameId) > 0;
+        if (gameRepository.isGameOver(wxId, gameId) > 0) {
+            return false;
+        }
+        return gameRepository.setGameOver(snowFlake.nextId() + "", wxId, gameId) > 0;
     }
 
     @Override
@@ -158,6 +161,44 @@ public class GameServiceImpl extends BaseService implements IGameService {
             return false;
         }
         dbGame.setScriptId(scriptId);
+        gameRepository.save(dbGame);
+        return true;
+    }
+
+    @Override
+    public List<Game> listOverGame(String wxId) {
+        return gameRepository.listOverGame(wxId);
+    }
+
+    @Override
+    public List<Game> listNotOverGame(String wxId) {
+        return gameRepository.listNotOverGame(wxId);
+    }
+
+    @Override
+    public boolean setGameNotOver(String wxId, String gameId) {
+        return gameRepository.setGameNotOver(wxId, gameId) > 0;
+    }
+
+    @Override
+    public boolean updateGameInfo(String id, String adid, String sadid, String packageName) {
+        if (StringUtils.isEmpty(id)) {
+            return false;
+        }
+        Game dbGame = gameRepository.findOneById(id);
+        if (dbGame == null) {
+            return false;
+        }
+        if (!StringUtils.isEmpty(adid)) {
+            dbGame.setAdid(adid);
+        }
+        if (!StringUtils.isEmpty(sadid)) {
+            dbGame.setSadid(sadid);
+        }
+        if (!StringUtils.isEmpty(packageName)) {
+            dbGame.setPackageName(packageName);
+        }
+        dbGame.setUpdateTime(new Date());
         gameRepository.save(dbGame);
         return true;
     }

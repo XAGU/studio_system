@@ -25,7 +25,14 @@ public interface Constants {
         String USED = "1";
         String LOGGED = "2";
         String PASSWORD_ERROR = "3";
-        String AUTH_FAILED = "4";
+        String ACCOUNT_BANED = "4";
+    }
+    interface Config {
+        String ROBOT_WX = "robotWx";
+        String ROBOT_QQ = "robotQq";
+        String QQ_NUM = "qqNum";
+        String QQ_PASS = "qqPass";
+        String KEYWORD = "keyword";
     }
 
     interface Page {

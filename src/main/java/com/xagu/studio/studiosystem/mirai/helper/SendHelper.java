@@ -1,12 +1,16 @@
 package com.xagu.studio.studiosystem.mirai.helper;
 
+import com.xagu.studio.studiosystem.bean.Config;
+import com.xagu.studio.studiosystem.dao.ConfigRepository;
 import com.xagu.studio.studiosystem.mirai.star.RobotStar;
+import com.xagu.studio.studiosystem.utils.Constants;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.Message;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,16 +27,33 @@ import java.util.List;
 @Component
 public class SendHelper {
 
-    @Value("${studio.ROBOT}")
-    private Long ROBOT;
+    @Autowired
+    ConfigRepository configRepository;
 
-    private static Long sROBOT = null;
-    private static Contact sRobot = null;
+    public static Long sROBOT = null;
+    public static Contact sRobot = null;
+    public static String keyword = null;
 
     @PostConstruct
     public void initVal() {
-        sROBOT = this.ROBOT;
+        Config config = configRepository.getByKey(Constants.Config.ROBOT_QQ);
 
+        if (config == null) {
+            config = new Config();
+            config.setKey(Constants.Config.ROBOT_QQ);
+            config.setValue("2422494482");
+        }
+        sROBOT = Long.parseLong(config.getValue());
+        configRepository.save(config);
+
+        Config keywordConfig = configRepository.getByKey(Constants.Config.KEYWORD);
+        if (keywordConfig == null) {
+            keywordConfig = new Config();
+            keywordConfig.setKey(Constants.Config.KEYWORD);
+            keywordConfig.setValue("辅助");
+        }
+        keyword = keywordConfig.getValue();
+        configRepository.save(keywordConfig);
     }
 
     /**
@@ -61,7 +82,7 @@ public class SendHelper {
         if (sRobot == null) {
             sRobot = RobotStar.bot.getFriend(sROBOT);
         }
-        sRobot.sendMessage(message);
+        sRobot.sendMessage(keyword + message);
     }
 
     public static ByteArrayOutputStream cloneInputStream(InputStream input) {

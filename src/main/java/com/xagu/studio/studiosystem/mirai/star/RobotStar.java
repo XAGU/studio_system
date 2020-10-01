@@ -1,6 +1,9 @@
 package com.xagu.studio.studiosystem.mirai.star;
 
+import com.xagu.studio.studiosystem.bean.Config;
+import com.xagu.studio.studiosystem.dao.ConfigRepository;
 import com.xagu.studio.studiosystem.mirai.listener.FriendListener;
+import com.xagu.studio.studiosystem.utils.Constants;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.BotFactoryJvm;
 import net.mamoe.mirai.event.Events;
@@ -23,22 +26,34 @@ import java.io.File;
 public class RobotStar {
     public static Bot bot = null;
 
-    @Value("${studio.QQ}")
-    private Long QQ;
-    @Value("${studio.PASSWORD}")
-    private String PASSWORD;
     @Autowired
     FriendListener friendListener;
+    @Autowired
+    ConfigRepository configRepository;
 
-    private static Long sQQ = null;
-    private static String sPassword = null;
+    public static Long sQQ = null;
+    public static String sPassword = null;
     private static FriendListener sFriendListener = null;
 
 
     @PostConstruct
     public void initVal() {
-        sQQ = this.QQ;
-        sPassword = this.PASSWORD;
+        Config configQQ = configRepository.getByKey(Constants.Config.QQ_NUM);
+        if (configQQ == null) {
+            configQQ = new Config();
+            configQQ.setKey(Constants.Config.QQ_NUM);
+            configQQ.setValue("11111");
+        }
+        sQQ = Long.parseLong(configQQ.getValue());
+        configRepository.save(configQQ);
+        Config configPass = configRepository.getByKey(Constants.Config.QQ_PASS);
+        if (configPass == null) {
+            configPass = new Config();
+            configPass.setKey(Constants.Config.QQ_PASS);
+            configPass.setValue("11111");
+        }
+        sPassword = configPass.getValue();
+        configRepository.save(configPass);
         sFriendListener = this.friendListener;
     }
 
@@ -49,6 +64,7 @@ public class RobotStar {
         bot = BotFactoryJvm.newBot(sQQ, sPassword);
         // 登陆
         bot.login();
+
 
         /**
          * 事件监听器注册

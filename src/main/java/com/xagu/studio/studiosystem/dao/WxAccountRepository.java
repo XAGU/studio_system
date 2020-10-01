@@ -26,4 +26,6 @@ public interface WxAccountRepository extends JpaRepository<WxAccount, String>, J
 
     List<WxAccount> findByStatusNot(String status);
 
+    Long countByStatusEquals(String status);
+
 }

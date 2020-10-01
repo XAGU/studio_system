@@ -36,6 +36,7 @@ public class VerifyController {
         return ResponseResult.decide("success".equals(ret), ret, ret);
     }
 
+
     @RequestMapping("getQrCode")
     public void getQrCode(HttpServletResponse response) {
         verifyService.getQrCode(response);

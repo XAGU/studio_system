@@ -17,7 +17,7 @@ public class StudioSystemApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(StudioSystemApplication.class, args);
-        RobotStar.star();
+        //RobotStar.star();
     }
 
 }

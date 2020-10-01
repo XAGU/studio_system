@@ -3,6 +3,9 @@ package com.xagu.studio.studiosystem.lovelycat.helper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xagu.studio.studiosystem.bean.Config;
+import com.xagu.studio.studiosystem.dao.ConfigRepository;
+import com.xagu.studio.studiosystem.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -28,22 +32,40 @@ import java.util.Map;
 @Component
 public class SendHelper {
 
-    @Value("${studio.ROBOTWXID}")
-    private String ROBOT;
+
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ConfigRepository configRepository;
 
-    private static String sROBOT = null;
+    public static String sROBOT = null;
     private static RestTemplate sRestTemplate = null;
     private static ObjectMapper sObjectMapper = null;
     private static String URL = "http://127.0.0.1:8073/send";
     private static String sMyWxId = null;
+    public static String keyword = null;
 
     @PostConstruct
     public void initVal() {
-        sROBOT = this.ROBOT;
+        Config config = configRepository.getByKey(Constants.Config.ROBOT_WX);
+        if (config == null) {
+            config = new Config();
+            config.setKey(Constants.Config.ROBOT_WX);
+            config.setValue("zx592715276");
+        }
+        sROBOT = config.getValue();
+        configRepository.save(config);
+
+        Config keywordConfig = configRepository.getByKey(Constants.Config.KEYWORD);
+        if (keywordConfig == null) {
+            keywordConfig = new Config();
+            keywordConfig.setKey(Constants.Config.KEYWORD);
+            keywordConfig.setValue("辅助");
+        }
+        keyword = keywordConfig.getValue();
+        configRepository.save(keywordConfig);
         sRestTemplate = this.restTemplate;
         sObjectMapper = this.objectMapper;
     }
@@ -81,7 +103,7 @@ public class SendHelper {
         if (StringUtils.isEmpty(sMyWxId)) {
             sMyWxId = getMyWxId();
         }
-        return sendMsg(msg, sROBOT, sMyWxId);
+        return sendMsg(keyword + msg, sROBOT, sMyWxId);
     }
 
     private static boolean sendMsg(String msg, String robot, String myWxId) {

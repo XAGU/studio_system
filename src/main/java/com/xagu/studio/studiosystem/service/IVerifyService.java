@@ -16,4 +16,5 @@ public interface IVerifyService {
     String accountVerifyByWx(MultipartFile file,String account);
 
     void getQrCode(HttpServletResponse response);
+
 }

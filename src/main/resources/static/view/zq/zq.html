@@ -16,6 +16,10 @@
                 <div class="layui-input-inline">
                     <input type="text" name="phone" placeholder="请输入手机号" class="layui-input">
                 </div>
+                <label class="layui-form-label">微信Id</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="wxId" placeholder="请输入微信Id" class="layui-input">
+                </div>
                 <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="zq-query">
                     <i class="layui-icon layui-icon-search"></i>
                     查询
@@ -44,6 +48,12 @@
 
 <script type="text/html" id="zq-bar">
     <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="toZq"><i class="layui-icon layui-icon-about"></i>
+    </button>
+    <button class="pear-btn pear-btn-success pear-btn-sm" lay-event="gameDetail"><i
+            class="layui-icon layui-icon-ok"></i>
+    </button>
+    <button class="pear-btn pear-btn-warming pear-btn-sm" lay-event="notOverGameDetail"><i
+            class="layui-icon layui-icon-close"></i>
     </button>
     <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove"><i class="layui-icon layui-icon-delete"></i>
     </button>
@@ -97,10 +107,9 @@
                 {title: '中青Id', field: 'accountId', align: 'center'},
                 {title: '手机号', field: 'phone', align: 'center'},
                 {title: 'Token', field: 'token', align: 'center'},
-                {title: '已领金额', field: 'money', align: 'center'},
                 {title: '微信Id', field: 'wxId', align: 'center'},
                 {title: '注册时间', field: 'regTime', align: 'center', templet: '#zq-createTime'},
-                {title: '操作', toolbar: '#zq-bar', align: 'center', width: 130}
+                {title: '操作', toolbar: '#zq-bar', align: 'center', width: 180}
             ]
         ];
 
@@ -110,6 +119,7 @@
             page: true,     //开启分页功能
             cols: cols,     //设置表头。值是一个二维数组。方法渲染方式必填
             skin: 'line',   //设定表格外观:line（行边框风格）,row（列边框风格）,nob（无边框风格）
+            limit: 50,
             //开启表格头部工具栏区域
             toolbar: '#zq-toolbar',
             response: {
@@ -139,6 +149,10 @@
                 window.remove(obj);
             } else if (obj.event === 'toZq') {
                 window.toZq(obj);
+            } else if (obj.event === 'gameDetail') {
+                window.gameDetail(obj);
+            } else if (obj.event === 'notOverGameDetail') {
+                window.notOverGameDetail(obj);
             }
         });
 
@@ -154,7 +168,7 @@
         });
 
         form.on('submit(zq-query)', function (data) {
-            table.reload('zq-table', {where: data.field});
+            table.reload('zq-table', {where: data.field, page: 1});
             return false;
         });
 
@@ -169,6 +183,45 @@
                 success: function (layero, index) {
                     form.render('select');
                     var iframe = window['layui-layer-iframe' + index];
+                    setTimeout(function () {
+                        layer.tips('点击此处返回', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    }, 500)
+                }
+            });
+        };
+
+
+        window.notOverGameDetail = function (obj) {
+            layer.open({
+                type: 2,
+                title: '未完成游戏',
+                shade: 0.1,
+                area: ['60%', '60%'],
+                content: 'notOverGame.html',
+                success: function (layero, index) {
+                    var iframe = window['layui-layer-iframe' + index];
+                    iframe.child(obj.data);
+                    setTimeout(function () {
+                        layer.tips('点击此处返回', '.layui-layer-setwin .layui-layer-close', {
+                            tips: 3
+                        });
+                    }, 500)
+                }
+            });
+        };
+
+        window.gameDetail = function (obj) {
+            layer.open({
+                type: 2,
+                title: '已完成游戏',
+                shade: 0.1,
+                area: ['60%', '60%'],
+                content: 'overGame.html',
+                success: function (layero, index) {
+                    var iframe = window['layui-layer-iframe' + index];
+                    iframe.child(obj.data);
                     setTimeout(function () {
                         layer.tips('点击此处返回', '.layui-layer-setwin .layui-layer-close', {
                             tips: 3

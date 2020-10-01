@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>后台登录</title>
+    <link rel="shortcut icon" href="./favicon.ico"/>
+    <link rel="stylesheet" href="admin/css/pearForm.css"/>
+    <link rel="stylesheet" href="component/layui/css/layui.css"/>
+    <link rel="stylesheet" href="admin/css/pearButton.css"/>
+    <link rel="stylesheet" href="assets/login.css"/>
+</head>
+<body background="admin/images/background.svg">
+<form class="layui-form" action="javascript:void(0);" >
+    <div class="layui-form-item">
+        <img class="logo" src="admin/images/logo.png"/>
+        <div class="title">春 晓 Studio</div>
+        <div class="desc">
+            <b>春 晓 Studio 后 台 管 理</b>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <input name="username" placeholder="用户名" hover class="layui-input" type="text"/>
+    </div>
+    <div class="layui-form-item">
+        <input name="password" placeholder="密  码" hover class="layui-input" type="password"/>
+    </div>
+    <div class="layui-form-item">
+        <button class="pear-btn pear-btn-primary" lay-submit="" lay-filter="login">
+            登 入
+        </button>
+    </div>
+</form>
+<script src="component/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'element', 'jquery'], function () {
+        var from = layui.form;
+        var element = layui.element;
+        var $ = layui.jquery;
+
+        from.on('submit(login)', function (data) {
+
+            var loader = layer.load();
+            $.ajax({
+                url: '/login',
+                data: data.field,
+                type: "post",
+                dataType: 'json',
+                success: function (result) {
+                    layer.close(loader);
+                    if (result.success) {
+                        layer.msg(result.message, {icon: 1, time: 1000}, function () {
+                            location.href = "/index.html";
+                        })
+                    } else {
+                        layer.msg(result.message, {icon: 2, time: 1000});
+                    }
+                }
+            });
+            return false;
+        })
+    })
+</script>
+</body>
+</html>

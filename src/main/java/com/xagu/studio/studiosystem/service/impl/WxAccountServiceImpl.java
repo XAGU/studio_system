@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -76,6 +77,7 @@ public class WxAccountServiceImpl extends BaseService implements IWxAccountServi
 
 
     @Override
+    @Transactional(rollbackFor = RuntimeException.class, isolation = Isolation.SERIALIZABLE)
     public WxAccount getAccount(String imei) {
         WxAccount oneByImei = wxAccountRepository.findOneByImei(imei);
         if (oneByImei != null) {

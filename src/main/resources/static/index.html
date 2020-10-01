@@ -34,6 +34,13 @@
         <ul class="layui-nav layui-layout-right">
             <li class="layui-nav-item layui-hide-xs"><a href="#"
                                                         class="fullScreen layui-icon layui-icon-screen-full"></a></li>
+            <li class="layui-nav-item" lay-unselect="">
+                <a href="javascript:;"><img src="assets/default_head.jpg"
+                                            class="layui-nav-img headImg" alt=""><span class="username">Admin</span></a>
+                <dl class="layui-nav-child">
+                    <dd><a class="cursor_pointer" id="logout">注销登陆</a></dd>
+                </dl>
+            </li>
             <li class="setting layui-nav-item"><a href="#" class="layui-icon layui-icon-more-vertical"></a></li>
         </ul>
     </div>
@@ -85,6 +92,32 @@
             parseData: false
         };
         pearAdmin.render(config);
+
+
+        $("#logout").click(function (data) {
+            layer.confirm('是否退出系统？', {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+                let loader = layer.load();
+                $.ajax({
+                    url: '/logout',
+                    data: data.field,
+                    type: "post",
+                    dataType: 'json',
+                    success: function (result) {
+                        layer.close(loader);
+                        if (result.success) {
+                            layer.msg(result.message, {icon: 1, time: 500}, function () {
+                                location.href = "login.html";
+                            });
+                        } else {
+                            layer.msg(result.message, {icon: 2, time: 500}, function () {
+                                location.href = "login.html";
+                            });
+                        }
+                    }
+                })
+            });
+        });
 
     });
 

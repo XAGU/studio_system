@@ -109,4 +109,26 @@ public class WxAccountController {
                 "同步账户信息失败");
     }
 
+    @PostMapping("setAccountPasswordError")
+    public ResponseResult setAccountPasswordError(String id) {
+        WxAccount account = new WxAccount();
+        account.setId(id);
+        account.setStatus(Constants.WxAccountStatus.PASSWORD_ERROR);
+        account.setImei("password_error");
+        return ResponseResult.decide(wxAccountService.updateAccount(account),
+                "同步账户信息成功",
+                "同步账户信息失败");
+    }
+
+    @PostMapping("setAccountBaned")
+    public ResponseResult setAccountBaned(String id) {
+        WxAccount account = new WxAccount();
+        account.setId(id);
+        account.setStatus(Constants.WxAccountStatus.ACCOUNT_BANED);
+        account.setImei("account_baned");
+        return ResponseResult.decide(wxAccountService.updateAccount(account),
+                "同步账户信息成功",
+                "同步账户信息失败");
+    }
+
 }

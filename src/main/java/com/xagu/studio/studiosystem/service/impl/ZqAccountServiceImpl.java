@@ -44,7 +44,7 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
     WxAccountRepository wxAccountRepository;
 
     @Override
-    public boolean addZqAccount(ZqAccount zqAccount) {
+    public boolean addZqAccount(ZqAccount zqAccount, String imei) {
         if (StringUtils.isEmpty(zqAccount.getAccountId())) {
             return false;
         }
@@ -58,11 +58,21 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
             return false;
         }
         if (StringUtils.isEmpty(zqAccount.getWxId())) {
-            return false;
-        }
-        WxAccount wxAccount = wxAccountRepository.findOneById(zqAccount.getWxId());
-        if (wxAccount == null) {
-            return false;
+            if (StringUtils.isEmpty(imei)) {
+                return false;
+            } else {
+                WxAccount wxAccount = wxAccountRepository.findOneByImei(imei);
+                if (wxAccount != null) {
+                    zqAccount.setWxId(wxAccount.getId());
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            WxAccount wxAccount = wxAccountRepository.findOneById(zqAccount.getWxId());
+            if (wxAccount == null) {
+                return false;
+            }
         }
         zqAccount.setId(snowFlake.nextId() + "");
         zqAccount.setRegTime(new Date());
@@ -81,7 +91,7 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
     }
 
     @Override
-    public Page<ZqAccount> listAccount(Integer page, Integer size, String phone) {
+    public Page<ZqAccount> listAccount(Integer page, Integer size, String phone, String wxId) {
         page = this.checkPage(page);
         size = this.checkSize(size);
         Sort sort = Sort.by(Sort.Direction.DESC, "regTime");
@@ -93,6 +103,9 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
                 List<Predicate> predicates = new ArrayList<>();
                 if (!StringUtils.isEmpty(phone)) {
                     predicates.add(criteriaBuilder.like(root.get("phone").as(String.class), phone + "%"));
+                }
+                if (!StringUtils.isEmpty(wxId)) {
+                    predicates.add(criteriaBuilder.like(root.get("wxId").as(String.class), wxId));
                 }
                 Predicate[] predicate = new Predicate[predicates.size()];
                 predicates.toArray(predicate);
@@ -118,5 +131,14 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
         double originMoney = Double.parseDouble(dbZqAccount.getMoney() != null ? dbZqAccount.getMoney() : "0");
         dbZqAccount.setMoney(String.valueOf(addMoney + originMoney));
         return true;
+    }
+
+    @Override
+    public ZqAccount getAccountByImei(String imei) {
+        WxAccount wxAccount = wxAccountRepository.findOneByImei(imei);
+        if (wxAccount == null) {
+            return null;
+        }
+        return zqAccountRepository.findOneByWxId(wxAccount.getId());
     }
 }

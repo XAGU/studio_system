@@ -10,14 +10,16 @@ import org.springframework.data.domain.Page;
  * Describe: TODO
  */
 public interface IZqAccountService {
-    boolean addZqAccount(ZqAccount zqAccount);
+    boolean addZqAccount(ZqAccount zqAccount, String imei);
 
     boolean deleteAccount(String[] split);
 
     ZqAccount getAccountById(String id);
 
-    Page<ZqAccount> listAccount(Integer page, Integer size, String phone);
+    Page<ZqAccount> listAccount(Integer page, Integer size, String phone, String wxId);
 
 
     boolean setGotMoney(String id, String money);
+
+    ZqAccount getAccountByImei(String imei);
 }
