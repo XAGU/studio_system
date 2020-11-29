@@ -72,8 +72,8 @@ public class ZqAccountController {
     }
 
     @GetMapping("listAccount")
-    public ResponseResult listAccount(Integer page, Integer size, String phone,String wxId) {
-        Page<ZqAccount> zqAccounts = zqAccountService.listAccount(page, size, phone,wxId);
+    public ResponseResult listAccount(Integer page, Integer size, String phone, String wxId, String platform) {
+        Page<ZqAccount> zqAccounts = zqAccountService.listAccount(page, size, phone, wxId, platform);
         return ResponseResult.SUCCESS("获取账号成功").setData(zqAccounts);
     }
 

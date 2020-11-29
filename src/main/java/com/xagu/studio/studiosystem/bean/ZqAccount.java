@@ -29,6 +29,8 @@ public class ZqAccount {
 	private String wxId;
   	@Column(name = "reg_time" )
 	private Date regTime;
+	@Column(name = "platform" )
+	private String platform;
 
 
 	public String getId() {
@@ -93,5 +95,13 @@ public class ZqAccount {
 
 	public void setRegTime(Date regTime) {
 		this.regTime = regTime;
+	}
+
+	public String getPlatform() {
+		return platform;
+	}
+
+	public void setPlatform(String platform) {
+		this.platform = platform;
 	}
 }

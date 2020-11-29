@@ -40,4 +40,8 @@ public interface Constants {
         Integer MIN_SIZE = 5;
     }
 
+    interface platform {
+        String ZQZD = "中青赚点";
+        String DMZ = "点猫钻";
+    }
 }

@@ -91,7 +91,7 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
     }
 
     @Override
-    public Page<ZqAccount> listAccount(Integer page, Integer size, String phone, String wxId) {
+    public Page<ZqAccount> listAccount(Integer page, Integer size, String phone, String wxId,String platform) {
         page = this.checkPage(page);
         size = this.checkSize(size);
         Sort sort = Sort.by(Sort.Direction.DESC, "regTime");
@@ -106,6 +106,9 @@ public class ZqAccountServiceImpl extends BaseService implements IZqAccountServi
                 }
                 if (!StringUtils.isEmpty(wxId)) {
                     predicates.add(criteriaBuilder.like(root.get("wxId").as(String.class), wxId));
+                }
+                if (!StringUtils.isEmpty(platform)) {
+                    predicates.add(criteriaBuilder.like(root.get("platform").as(String.class), platform));
                 }
                 Predicate[] predicate = new Predicate[predicates.size()];
                 predicates.toArray(predicate);

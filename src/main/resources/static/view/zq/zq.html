@@ -20,6 +20,15 @@
                 <div class="layui-input-inline">
                     <input type="text" name="wxId" placeholder="请输入微信Id" class="layui-input">
                 </div>
+                <label class="layui-form-label">平台</label>
+                <div class="layui-input-inline">
+                    <select name="platform" lay-verify="" lay-search>
+                        <option></option>
+                        <option value="中青赚点">中青赚点</option>
+                        <option value="点猫钻">点猫钻</option>
+                        <option value="易起赚">易起赚</option>
+                    </select>
+                </div>
                 <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="zq-query">
                     <i class="layui-icon layui-icon-search"></i>
                     查询
@@ -76,17 +85,12 @@
 
 <script type="text/html" id="zq-type">
     <p>
-        {{# if(d.status === "0"){ }}
-        <button class="pear-btn pear-btn-success pear-btn-xs"> <p style="font-size: 5px">未使用</p> </button>
-    {{#  }if(d.status === "1"){ }}
-    <button class="pear-btn pear-btn-warming pear-btn-xs"><p style="font-size: 5px">已被获取</p></button>
-    {{#  }if(d.status === "2"){ }}
-    <button class="pear-btn pear-btn-primary pear-btn-xs"><p style="font-size: 5px">已被登录</p></button>
-    {{#  }if(d.status === "3"){ }}
-    <button class="pear-btn pear-btn-danger pear-btn-xs"><p style="font-size: 5px">密码错误</p></button>
-    {{#  }if(d.status === "4"){ }}
-    <button class="pear-btn pear-btn-success pear-btn-xs" style="color: #e74c3c"><p style="font-size: 5px">验证失败</p>
-    </button>
+        {{# if(d.platform === "中青赚点" || d.platform === "" || d.platform == null){ }}
+        <button class="pear-btn pear-btn-success pear-btn-xs"> <p style="font-size: 5px">中青赚点</p> </button>
+    {{#  }if(d.platform === "点猫钻"){ }}
+    <button class="pear-btn pear-btn-warming pear-btn-xs"><p style="font-size: 5px">点猫钻</p></button>
+    {{#  }if(d.platform === "易起赚"){ }}
+    <button class="pear-btn pear-btn-danger pear-btn-xs"><p style="font-size: 5px">易起赚</p></button>
     {{# } }}
     </p>
 </script>
@@ -109,6 +113,7 @@
                 {title: 'Token', field: 'token', align: 'center'},
                 {title: '微信Id', field: 'wxId', align: 'center'},
                 {title: '注册时间', field: 'regTime', align: 'center', templet: '#zq-createTime'},
+                {title: '平台', field: 'platform', align: 'center', templet: '#zq-type'},
                 {title: '操作', toolbar: '#zq-bar', align: 'center', width: 180}
             ]
         ];
@@ -240,8 +245,18 @@
                 type: 'get',
                 success: function (result) {
                     if (result.success) {
+                        var host = "api.tongluxiaoba.com:80";
+                        var shortName = "PCDD"
+                        if (obj.data['platform'] === "中青赚点") {
+                            host = "api.tongluxiaoba.com:80"
+                        } else if (obj.data['platform'] === "点猫钻") {
+                            host = "dzmapi.tongluxiaoba.com:80"
+                        } else if (obj.data['platform'] === "易起赚") {
+                            host = "api.tongluxiaoba.com:80"
+                            shortName = "PCDD1"
+                        }
                         $.ajax({
-                            url: "http://api.tongluxiaoba.com:80/tpCompany/getPCDDUrl?equipmentType=1&shortName=PCDD&imei=" + result.data.imei + "&token=" + obj.data['token'],
+                            url: "http://" + host + "/tpCompany/getPCDDUrl?equipmentType=1&shortName=" + shortName + "&imei=" + result.data.imei + "&token=" + obj.data['token'],
                             dataType: 'json',
                             type: 'get',
                             success: function (result) {

@@ -16,7 +16,7 @@ public interface IZqAccountService {
 
     ZqAccount getAccountById(String id);
 
-    Page<ZqAccount> listAccount(Integer page, Integer size, String phone, String wxId);
+    Page<ZqAccount> listAccount(Integer page, Integer size, String phone, String wxId,String platform);
 
 
     boolean setGotMoney(String id, String money);
