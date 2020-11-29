@@ -54,5 +54,5 @@ public interface IWxAccountService {
 
     WxAccount getAccountById(String id);
 
-    Page<WxAccount> listAccount(Integer page, Integer size, String account, String imei, String status);
+    Page<WxAccount> listAccount(Integer page, Integer size, String account, String imei, String status, String id);
 }

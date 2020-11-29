@@ -12,7 +12,7 @@ import java.util.Date;
  * @author xagu
  */
 @Entity
-@Table(name = " tb_wx_account")
+@Table(name = "tb_wx_account")
 public class WxAccount {
 
     @Id
@@ -21,6 +21,8 @@ public class WxAccount {
     private String account;
     @Column(name = "password")
     private String password;
+    @Column(name = "`key`")
+    private String key;
     @Column(name = "update_time")
     private Date updateTime;
     @Column(name = "status")
@@ -49,6 +51,14 @@ public class WxAccount {
         return password;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -75,5 +85,18 @@ public class WxAccount {
 
     public void setImei(String imei) {
         this.imei = imei;
+    }
+
+    @Override
+    public String toString() {
+        return "WxAccount{" +
+                "id='" + id + '\'' +
+                ", account='" + account + '\'' +
+                ", password='" + password + '\'' +
+                ", key='" + key + '\'' +
+                ", updateTime=" + updateTime +
+                ", status='" + status + '\'' +
+                ", imei='" + imei + '\'' +
+                '}';
     }
 }

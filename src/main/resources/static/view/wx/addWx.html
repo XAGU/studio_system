@@ -34,10 +34,17 @@
                                    placeholder="请输入密码" class="layui-input">
                         </div>
                     </div>
+                    <div class="layui-form-item" id="keyItem">
+                        <label class="layui-form-label">key</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="key" name="key" autocomplete="off"
+                                   placeholder="请输入key" class="layui-input">
+                        </div>
+                    </div>
                     <div class="layui-form-item" id="batchAddItem" style="display: none">
                         <label class="layui-form-label">批量账号</label>
                         <div class="layui-input-block">
-                            <textarea id="wxAccount" name="wxAccount" placeholder="格式：账号----密码"
+                            <textarea id="wxAccount" name="wxAccount" placeholder="格式：账号----密码/账号----密码----key"
                                       class="layui-textarea"></textarea>
                         </div>
                     </div>
@@ -71,12 +78,15 @@
             if (this.value === '1') {
                 $("#accountItem").hide();
                 $("#passwordItem").hide();
+                $("#keyItem").hide();
                 $("#batchAddItem").show();
                 $("#account").val("");
                 $("#password").val("");
+                $("#key").val("");
             } else if (this.value === '0') {
                 $("#accountItem").show();
                 $("#passwordItem").show();
+                $("#keyItem").show();
                 $("#batchAddItem").hide();
                 $("#wxAccount").val("");
             }

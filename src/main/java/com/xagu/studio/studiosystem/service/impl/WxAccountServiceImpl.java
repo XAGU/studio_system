@@ -44,10 +44,17 @@ public class WxAccountServiceImpl extends BaseService implements IWxAccountServi
         List<WxAccount> wxAccounts = new ArrayList<>();
         for (String account : accounts) {
             String[] accountAndPass = account.split("----");
-            if (accountAndPass.length != 2) {
+            WxAccount wxAccount;
+            //账号----密码
+            if (accountAndPass.length == 2) {
+                wxAccount = new WxAccount();
+            } else if (accountAndPass.length == 3) {
+                //账号----密码----a16
+                wxAccount = new WxAccount();
+                wxAccount.setKey(accountAndPass[2]);
+            } else {
                 continue;
             }
-            WxAccount wxAccount = new WxAccount();
             wxAccount.setAccount(accountAndPass[0]);
             wxAccount.setPassword(accountAndPass[1]);
             wxAccount.setId(snowFlake.nextId() + "");
@@ -132,6 +139,10 @@ public class WxAccountServiceImpl extends BaseService implements IWxAccountServi
         if (!StringUtils.isEmpty(password)) {
             dbWxAccount.setPassword(password);
         }
+        String key = wxAccount.getKey();
+        if (!StringUtils.isEmpty(key)) {
+            dbWxAccount.setKey(key);
+        }
         String imei = wxAccount.getImei();
         if (!StringUtils.isEmpty(imei)) {
             dbWxAccount.setImei(imei);
@@ -151,7 +162,7 @@ public class WxAccountServiceImpl extends BaseService implements IWxAccountServi
     }
 
     @Override
-    public Page<WxAccount> listAccount(Integer page, Integer size, String account, String imei, String status) {
+    public Page<WxAccount> listAccount(Integer page, Integer size, String account, String imei, String status, String id) {
         page = this.checkPage(page);
         size = this.checkSize(size);
         Sort sort = Sort.by(Sort.Direction.DESC, "updateTime");
@@ -161,6 +172,9 @@ public class WxAccountServiceImpl extends BaseService implements IWxAccountServi
             @Override
             public Predicate toPredicate(Root<WxAccount> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();
+                if (!StringUtils.isEmpty(id)) {
+                    predicates.add(criteriaBuilder.like(root.get("id").as(String.class), id + "%"));
+                }
                 if (!StringUtils.isEmpty(account)) {
                     predicates.add(criteriaBuilder.like(root.get("account").as(String.class), account + "%"));
                 }

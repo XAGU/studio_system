@@ -82,8 +82,8 @@ public class WxAccountController {
     }
 
     @GetMapping("listAccount")
-    public ResponseResult listAccount(Integer page, Integer size, String account, String imei, String status) {
-        Page<WxAccount> wxAccounts = wxAccountService.listAccount(page, size, account, imei, status);
+    public ResponseResult listAccount(Integer page, Integer size, String account, String imei, String status, String id) {
+        Page<WxAccount> wxAccounts = wxAccountService.listAccount(page, size, account, imei, status, id);
         return ResponseResult.SUCCESS("获取账号成功").setData(wxAccounts);
     }
 
